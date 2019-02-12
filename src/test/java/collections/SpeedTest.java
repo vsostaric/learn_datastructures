@@ -1,11 +1,12 @@
 package collections;
 
+import collections.speedtest.RunSpeedTestParams;
+import collections.speedtest.RunSpeedTestParamsBuilder;
+import collections.speedtest.SpeedTestRunner;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.stream.IntStream;
+import java.util.function.Function;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -17,41 +18,50 @@ public class SpeedTest {
         var list = new MyList<String>();
         var map = new MyMap<String, String>();
 
-        int numberOfElements = RandomUtils.nextInt(100, 200);
+        Function<RunSpeedTestParams, Double> runSpeedTest = new SpeedTestRunner();
 
-        int testCases = 5;
+        RunSpeedTestParamsBuilder builderMap = getMapSpeedParamBuilder();
+        RunSpeedTestParamsBuilder builderList = getListSpeedParamBuilder();
 
-        long[] listSpeeds = new long[5];
-        long[] mapSpeeds = new long[5];
-
-        for (int i = 0; i < testCases; i++) {
-            IntStream.range(0, numberOfElements)
-                    .forEach(_i -> list.add(RandomStringUtils.random(5)));
-            IntStream.range(0, numberOfElements)
-                    .forEach(_i -> map.put(RandomStringUtils.randomAlphabetic(12), RandomStringUtils.randomAlphanumeric(5)));
-
-            list.add("aa");
-            map.put("aa", "11");
-
-            IntStream.range(0, numberOfElements)
-                    .forEach(_i -> list.add(RandomStringUtils.random(5)));
-            IntStream.range(0, numberOfElements)
-                    .forEach(_i -> map.put(RandomStringUtils.randomAlphabetic(12), RandomStringUtils.randomAlphanumeric(5)));
-
-            long start = System.nanoTime();
-            assertTrue(list.contains("aa"));
-            listSpeeds[i] = System.nanoTime() - start;
-
-            start = System.nanoTime();
-            assertTrue(map.containsKey("aa"));
-            mapSpeeds[i] = System.nanoTime() - start;
-
-        }
-
-        Double listAvg = Arrays.stream(listSpeeds).average().orElse(0.0);
-        Double mapAvg = Arrays.stream(mapSpeeds).average().orElse(0.0);
+        Double mapAvg = runSpeedTest.apply(builderMap.build());
+        Double listAvg = runSpeedTest.apply(builderList.build());
 
         assertTrue(mapAvg < listAvg);
+
+    }
+
+    private RunSpeedTestParamsBuilder getListSpeedParamBuilder() {
+        Class[] paramTypes = {Object.class};
+        String[] params = {"aa"};
+        return RunSpeedTestParamsBuilder.getBuilder()
+                .testCases(5)
+                .numberOfElements(200)
+                .datastructure(new MyList<String>())
+                .addMethodName("add")
+                .containsMethodName("contains")
+                .paramTypes(paramTypes)
+                .params(params)
+                .randomCreator(s -> RandomStringUtils.randomAlphanumeric(5));
+    }
+
+    private RunSpeedTestParamsBuilder getMapSpeedParamBuilder() {
+        Class[] paramTypes = {Object.class, Object.class};
+        String[] params = {"aa", "11"};
+        return RunSpeedTestParamsBuilder.getBuilder()
+                .testCases(5)
+                .numberOfElements(200)
+                .datastructure(new MyMap<String, String>())
+                .addMethodName("put")
+                .containsMethodName("containsKey")
+                .paramTypes(paramTypes)
+                .params(params)
+                .randomCreator(s -> RandomStringUtils.randomAlphanumeric(5));
+    }
+
+    @Test
+    public void test_contains_speed_my_map_and_hash_map() {
+
+        var list = new MyList<>();
 
     }
 
