@@ -13,10 +13,10 @@ import static junit.framework.TestCase.assertTrue;
 
 public class SpeedTest {
 
+    private Function<RunSpeedTestParams, Double> runSpeedTest = new SpeedTestRunner();
+
     @Test
     public void test_contains_speed_my_list_and_map() {
-
-        Function<RunSpeedTestParams, Double> runSpeedTest = new SpeedTestRunner();
 
         RunSpeedTestParamsBuilder builderMap = getMapSpeedParamBuilder();
         RunSpeedTestParamsBuilder builderList = getListSpeedParamBuilder();
@@ -58,16 +58,12 @@ public class SpeedTest {
 
     @Test
     public void test_contains_speed_my_map_and_hash_map() {
-        Function<RunSpeedTestParams, Double> runSpeedTest = new SpeedTestRunner();
-
-        Class[] paramTypes = {Object.class, Object.class};
-        String[] params = {"aa", "11"};
 
         Double myMapAvg = runSpeedTest.apply(getMapSpeedParamBuilder().build());
         Double hashMapAvg = runSpeedTest.apply(getMapSpeedParamBuilder()
                 .datastructure(new HashMap<String, String>()).build());
 
-        // :( 
+        // :(
         assertTrue(hashMapAvg < myMapAvg);
 
     }
