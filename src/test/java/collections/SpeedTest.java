@@ -6,6 +6,7 @@ import collections.speedtest.SpeedTestRunner;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.function.Function;
 
 import static junit.framework.TestCase.assertTrue;
@@ -14,9 +15,6 @@ public class SpeedTest {
 
     @Test
     public void test_contains_speed_my_list_and_map() {
-
-        var list = new MyList<String>();
-        var map = new MyMap<String, String>();
 
         Function<RunSpeedTestParams, Double> runSpeedTest = new SpeedTestRunner();
 
@@ -60,8 +58,17 @@ public class SpeedTest {
 
     @Test
     public void test_contains_speed_my_map_and_hash_map() {
+        Function<RunSpeedTestParams, Double> runSpeedTest = new SpeedTestRunner();
 
-        var list = new MyList<>();
+        Class[] paramTypes = {Object.class, Object.class};
+        String[] params = {"aa", "11"};
+
+        Double myMapAvg = runSpeedTest.apply(getMapSpeedParamBuilder().build());
+        Double hashMapAvg = runSpeedTest.apply(getMapSpeedParamBuilder()
+                .datastructure(new HashMap<String, String>()).build());
+
+        // :( 
+        assertTrue(hashMapAvg < myMapAvg);
 
     }
 
